@@ -10,20 +10,22 @@ import SwiftUI
 struct LetterClass: View {
     
     @EnvironmentObject var cats : duck
+    @State  var index :Int = 0
     
     private var columns: [GridItem] = [
-            GridItem(.fixed(100), spacing: 80),
-            GridItem(.fixed(100), spacing: 80)
-        ]
+        GridItem(.fixed(100), spacing: 80),
+        GridItem(.fixed(100), spacing: 80)
+    ]
     
     var body: some View {
         
+        
         ScrollView{
-        LazyVGrid(columns: columns){
-            ForEach(cats.hexCore){cat in
-                LetterView(appLet: cat)
+            LazyVGrid(columns: columns){
+                ForEach(cats.hexCore){cat in
+                    LetterView(appLet: cat)
+                }
             }
-        }
         }
     }
 }
