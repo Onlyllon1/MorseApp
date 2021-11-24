@@ -45,6 +45,46 @@ class duck: ObservableObject
     LetterAndMorse(lettera:"6", morse:"-····"),
     LetterAndMorse(lettera:"7", morse:"--···"),
     LetterAndMorse(lettera:"8", morse:"---··"),
-    LetterAndMorse(lettera:"9", morse:"----·")
+    LetterAndMorse(lettera:"9", morse:"----·"),
+    LetterAndMorse(lettera:" ", morse:" / ")
 ]
+    
+    func rosettaWord(inputString: String) -> String? {
+
+    var morseTranslation: String = ""
+    
+        let chararray = Array(inputString.uppercased())
+        for char in chararray {
+            for x in hexCore {
+                if x.lettera.contains(char) {
+                    morseTranslation += x.morse
+                    morseTranslation += " "
+                }
+            }
+        }
+        
+        return morseTranslation
 }
+    
+    func rosettaMorse(inputString: String) -> String? {
+
+    var morseTranslation: String = ""
+    
+        let chararray = Array(inputString)
+        print(chararray)
+        for char in chararray {
+            for x in hexCore {
+                if x.morse.contains(char) {
+                    print("Sto traducendo")
+                    morseTranslation += x.lettera
+                    morseTranslation += " "
+                }
+            }
+        }
+        
+        return morseTranslation
+}
+
+}
+
+

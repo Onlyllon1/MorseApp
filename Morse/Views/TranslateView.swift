@@ -14,7 +14,8 @@ struct TranslateViewWithTitle: View{
     
     
     var body: some View {
-        
+       
+
         NavigationView {
             TranslateView()
                 .navigationBarTitleDisplayMode(.inline)
@@ -49,6 +50,9 @@ struct TranslateViewWithTitle: View{
 
 struct TranslateView: View {
     @State private var selectedTypeIndex = "TextToMorse"
+    @EnvironmentObject var phrase : TranslatePhrase
+
+
     
     var body: some View {
         VStack {
@@ -71,7 +75,7 @@ struct TranslateView: View {
                     }
                     
                     ZStack{
-                        TranslateViewFieldOutputBackground()
+                        TranslateViewFieldTextToMorseOutputBackground()
                         
                         
                     }
@@ -84,11 +88,12 @@ struct TranslateView: View {
                     ZStack{
                         
                         TranslateViewFieldInputBackground()
-                        
+                        TranslateViewTextFieldMorseToText()
+
                     }
                     
                     ZStack{
-                        TranslateViewFieldOutputBackground()
+                        TranslateViewFieldMorseToTextOutputBackground()
                     }
                     
                 }
@@ -99,6 +104,7 @@ struct TranslateView: View {
             HStack{
                 Button(action: {
                     print("SOS tapped")
+                    phrase.phrase = "SOS"
                     
                 }) {
                     ZStack{
@@ -178,11 +184,15 @@ struct TranslateViewFieldInputBackground: View{
 }
 
 
-struct TranslateViewFieldOutputBackground: View{
+struct TranslateViewFieldTextToMorseOutputBackground: View{
+    
+    @EnvironmentObject var cats : duck
+    @EnvironmentObject var phrase : TranslatePhrase
+
     
     var body: some View {
         
-        VStack{
+        ZStack{
             
             VStack(alignment:.trailing, spacing: 0) {
                 
@@ -190,7 +200,11 @@ struct TranslateViewFieldOutputBackground: View{
                     .fill(Color(red: 0.84706, green: 0.84706, blue: 0.84706, opacity: 0.44))
                     .cornerRadius(39, corners: [.bottomLeft, .bottomRight])
                     .frame(minWidth: 0, maxWidth: .infinity)
+                
+                
             }
+            Text(cats.rosettaWord(inputString: phrase.phrase ) ?? "ERRORE NELLA TRADUZIONE")
+                .font(.system(size: 50.0))
         }
         
         
@@ -206,26 +220,30 @@ struct TranslateViewTextFieldTextToMorse: View{
         UITextView.appearance().backgroundColor = .clear
     }
     
+    @EnvironmentObject var phrase : TranslatePhrase
+    
+    
     var body: some View {
         VStack {
             
             ZStack{
-            
-            if textToTranslate.isEmpty {
+                
+                if textToTranslate.isEmpty {
                     Text("Type Text Here")
-                    .foregroundColor(Color.black).opacity(0.6)
-             
+                        .foregroundColor(Color.black).opacity(0.6)
+                    
                 }
-            
-            TextEditor(text: $textToTranslate)
-                .background(Color(red: 0.84706, green: 0.84706, blue: 0.84706, opacity: 0.44))
-                .onChange(of: textToTranslate) { value in
-                    if value.contains("\n") {
-                        textToTranslate = value.replacingOccurrences(of: "\n", with: "")
-                        self.dismissKeyboard()
-                        //self.onEditingEnded()
+                TextEditor(text: $textToTranslate)
+                    .background(Color(red: 0.84706, green: 0.84706, blue: 0.84706, opacity: 0.44))
+                    .onChange(of: textToTranslate) { value in
+                        if value.contains("\n") {
+                            phrase.phrase = textToTranslate
+                            textToTranslate = value.replacingOccurrences(of: "\n", with: "")
+                            self.dismissKeyboard()
+                            //self.onEditingEnded()
+                        }
+                        
                     }
-                }
             }
             
             
@@ -243,6 +261,74 @@ struct TranslateViewTextFieldTextToMorse: View{
  
  }
  */
+
+struct TranslateViewFieldMorseToTextOutputBackground : View {
+    
+    @EnvironmentObject var cats : duck
+    @EnvironmentObject var phrase : TranslatePhrase
+    
+    var body: some View {
+        
+        ZStack{
+            
+            VStack(alignment:.trailing, spacing: 0) {
+                
+                Rectangle()
+                    .fill(Color(red: 0.84706, green: 0.84706, blue: 0.84706, opacity: 0.44))
+                    .cornerRadius(39, corners: [.bottomLeft, .bottomRight])
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                
+                
+            }
+            Text(cats.rosettaMorse(inputString: phrase.morsePhrase ) ?? "ERRORE NELLA TRADUZIONE")
+                .font(.system(size: 50.0))
+        }
+        
+        
+        
+    }
+    
+    
+}
+
+struct TranslateViewTextFieldMorseToText: View{
+    
+    @State private var textToTranslate: String = ""
+    init() {
+        UITextView.appearance().backgroundColor = .clear
+    }
+    
+    @EnvironmentObject var phrase : TranslatePhrase
+    
+    
+    var body: some View {
+        VStack {
+            
+            ZStack{
+                
+                if textToTranslate.isEmpty {
+                    Text("Type Text Here")
+                        .foregroundColor(Color.black).opacity(0.6)
+                    
+                }
+                TextEditor(text: $textToTranslate)
+                    .background(Color(red: 0.84706, green: 0.84706, blue: 0.84706, opacity: 0.44))
+                    .onChange(of: textToTranslate) { value in
+                        if value.contains("\n") {
+                            phrase.morsePhrase = textToTranslate
+                            textToTranslate = value.replacingOccurrences(of: "\n", with: "")
+                            self.dismissKeyboard()
+                            //self.onEditingEnded()
+                        }
+                        
+                    }
+            }
+            
+            
+        }.padding()
+        
+    }
+}
 
 struct TranslateView_Previews: PreviewProvider {
     static var previews: some View {
@@ -306,13 +392,13 @@ struct ReferenceView: View {
             }
             
             
-        
             
-
+            
+            
             
         }
     }
-
+    
     
     @available(iOS 15.0, *)
     var body: some View {
@@ -329,13 +415,13 @@ struct ReferenceView: View {
                         
                         ForEach(filteredLetters, id: \.self){element in
                             NavigationLink(destination: ReferenceViewBig(letter:element.letter,morse: dictionaryCorr[element.letter]!)){
-                            HStack{
-                                Text(element.letter)
-                                Spacer()
-                                Text(dictionaryCorr[element.letter]!)
-                                
-                                
-                            }
+                                HStack{
+                                    Text(element.letter)
+                                    Spacer()
+                                    Text(dictionaryCorr[element.letter]!)
+                                    
+                                    
+                                }
                             }
                             
                             
@@ -348,30 +434,30 @@ struct ReferenceView: View {
                         
                         ForEach(filteredNumbers, id: \.self){element in
                             NavigationLink(destination: ReferenceViewBig(letter:String(element.number),morse: dictionaryCorr[String(element.number)]!)){
-                            HStack{
-                            Text(String(element.number))
-                            Spacer()
-                            Text(dictionaryCorr[String(element.number)]!)
+                                HStack{
+                                    Text(String(element.number))
+                                    Spacer()
+                                    Text(dictionaryCorr[String(element.number)]!)
+                                }
                             }
                         }
-                        }
-
+                        
                     }.listStyle(.grouped)
                     
                 }.navigationBarTitle("Reference")
                     .searchable(text: $searchText,prompt:"Search")
-                        
+                
             } else {
                 // Fallback on earlier versions
             }
-                
-                
-                
-                
-            }.accentColor(.black)
-        }
-        
+            
+            
+            
+            
+        }.accentColor(.black)
     }
+    
+}
 
 
 
@@ -388,8 +474,8 @@ struct ReferenceViewBig: View {
                 .font(.system(size: 181))
                 .frame(height: 200)
                 .offset(x: 0, y: -150)
-                
-                
+            
+            
             
         }
         

@@ -11,10 +11,11 @@ import SwiftUI
 struct MorseApp: App {
     
     @StateObject var foca : duck = duck()
+    @StateObject var phrase : TranslatePhrase = TranslatePhrase()
     
     var body: some Scene {
         WindowGroup {
-            MainView().environmentObject(foca)
+            MainView().environmentObject(foca).environmentObject(phrase)
         }
     }
 }

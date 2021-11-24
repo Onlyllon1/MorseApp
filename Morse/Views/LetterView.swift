@@ -17,6 +17,8 @@ struct LetterView: View {
 //        self.morse=morse
 //    }
     var appLet: LetterAndMorse
+    @EnvironmentObject var cats : duck
+
 
     var body: some View {
         
